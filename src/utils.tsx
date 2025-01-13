@@ -18,6 +18,10 @@ export function squareToPos(i: number) {
   return { row, column };
 }
 
+export function posToSquare(row: number, column: number): number {
+  return row * 8 + column;
+}
+
 // Helper function to check if a move is within the bounds of the board
 export const isInBound = (row: number, column: number) => {
   return row >= 0 && row <= 7 && column >= 0 && column <= 7;
@@ -395,7 +399,7 @@ export const prob0 = (s: State): number => {
   return realAlpha * realAlpha + imagAlpha * imagAlpha;
 };
 
-type MeasurementData = {
+export type MeasurementData = {
   entanglement: boolean;
   latex: string;
   measurement: string;
@@ -409,7 +413,8 @@ export type Qubit = {
   id: string;
   classicalState: 0 | 1;
 };
-export async function measure(circuit: Circuit): Promise<MeasurementData> {
+
+export function involvedQubits(circuit: Circuit): Qubit[] {
   const involvedPiecesId = circuit.actions.flatMap((a) => a.args);
   const qubits: Qubit[] = pieces()
     .filter((p0) => involvedPiecesId.includes(p0.id))
@@ -420,6 +425,35 @@ export async function measure(circuit: Circuit): Promise<MeasurementData> {
       };
     });
 
+  return qubits;
+}
+
+export function findEntangledMesh(circuit: Circuit, id: string) {
+  const entangledQubits: string[] = [id];
+
+  while (true) {
+    let newEntangledQubits: string[] = [];
+    circuit.entanglements.forEach((e) => {
+      if (entangledQubits.includes(e.idA)) {
+        if (!entangledQubits.includes(e.idB)) {
+          newEntangledQubits.push(e.idB);
+        }
+      }
+
+      if (entangledQubits.includes(e.idB)) {
+        if (!entangledQubits.includes(e.idA)) {
+          newEntangledQubits.push(e.idA);
+        }
+      }
+    });
+
+    if (newEntangledQubits.length == 0) break;
+    entangledQubits.push(...newEntangledQubits);
+  }
+  return entangledQubits;
+}
+export async function measure(circuit: Circuit): Promise<MeasurementData> {
+  const qubits = involvedQubits(circuit);
   const payload = {
     actions: circuit.actions,
     qubits,

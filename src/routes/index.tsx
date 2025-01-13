@@ -11,6 +11,7 @@ import {
   selectedPiece,
   setDidAction,
 } from "~/signals";
+import Line from "~/components/Line";
 
 const squares = Array(64).fill(null);
 

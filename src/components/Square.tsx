@@ -1,33 +1,39 @@
-import { batch, createSignal, Show } from "solid-js";
+import { batch, createEffect, createSignal, For, Show } from "solid-js";
 import {
-  capturedPieces,
+  bubbles,
   Color,
   didAction,
+  entanglements,
   flow,
+  mesh,
   pickAnother,
   Piece,
   pieces,
   selectedPiece,
   selectedSquare,
-  setCapturedPieces,
-  setCircuits,
+  setBubbles,
   setDidAction,
   setFlow,
   setPickAnother,
   setPieces,
   setSelectedSquare,
+  setShakes,
+  shakes,
   validMoves,
 } from "~/signals";
 import {
+  findEntangledMesh,
+  involvedQubits,
   measure,
+  MeasurementData,
   newCircuit,
-  Qubit,
-  removePiece,
+  posToSquare,
   squareToPos,
   updatePiece,
 } from "~/utils";
 import magicPng from "../assets/magic2.png";
 import ContextMenu from "./ContextMenu";
+import Line from "./Line";
 import PieceImg from "./PieceImg";
 import PromotionPicker from "./PromotionPicker";
 
@@ -36,13 +42,13 @@ export default function Square(props: { i: number }) {
     left: number;
     top: number;
   }>();
-  const [bubble, setBubble] = createSignal<string>();
-  const [shake, setShake] = createSignal(false);
   const { row, column } = squareToPos(props.i);
   const [promotion, setPromotion] = createSignal<Piece>();
   const shaded = Math.abs(row - column) % 2 == 1;
   const piece = () =>
-    pieces().find((p) => p.position.row == row && p.position.column == column);
+    pieces().find(
+      (p) => p.position.row == row && p.position.column == column && !p.captured
+    );
 
   const isValidMove = () => {
     const p = selectedPiece();
@@ -60,6 +66,77 @@ export default function Square(props: { i: number }) {
       (flow() == "turn-white" && p.color == "white")
     );
   };
+
+  function measurePieces(
+    data: MeasurementData,
+    pms: { piece: Piece; i: number }[]
+  ) {
+    const animations = pms.map((pm) => {
+      const color: Color =
+        Number(data.measurement[pm.i]) == 0 ? "black" : "white";
+
+      const updatedP: Piece = {
+        ...pm.piece,
+        color,
+        circuit: newCircuit(),
+      };
+      updatePiece(updatedP);
+      return {
+        shake: updatedP.id,
+        bubble: {
+          id: updatedP.id,
+          words:
+            updatedP.color == pm.piece.color
+              ? "I remain loyal!"
+              : "Haha, I’ve switched sides!",
+        },
+        callback: () => {
+          updatedP.prob_black = updatedP.color == "black" ? 1 : 0;
+          updatePiece(updatedP);
+        },
+      };
+    });
+
+    setShakes(animations.map((a) => a.shake));
+    setTimeout(() => {
+      setShakes([]);
+      setBubbles(animations.map((a) => a.bubble));
+      animations.forEach((a) => a.callback());
+      setTimeout(() => {
+        setBubbles([]);
+      }, 2000);
+    }, 600);
+  }
+
+  const lines = () => {
+    const p = piece();
+    const es = entanglements();
+    if (!p) return [];
+    const otherPieces = es
+      .filter((e) => e.idA == p.id)
+      .map((e) => e.idB)
+      .map((x) => pieces().find((p) => p.id == x)!);
+    const otherSquares = otherPieces.map((p) =>
+      posToSquare(p.position.row, p.position.column)
+    );
+    return otherSquares;
+  };
+
+  const inMesh = () => {
+    const p = piece();
+    if (!p) return;
+    return mesh().includes(p.id);
+  };
+
+  const sameCircuitAsSelected = () => {
+    const s = selectedPiece();
+    const p = piece();
+    if (!p || !s) return;
+    return s.circuit == p.circuit;
+  };
+
+  createEffect(() => {});
+
   return (
     <div
       onClick={() => {
@@ -92,8 +169,8 @@ export default function Square(props: { i: number }) {
 
           batch(() => {
             if (capturedPiece) {
-              setCapturedPieces([...capturedPieces(), capturedPiece]);
-              removePiece(capturedPiece.id);
+              capturedPiece.captured = true;
+              updatePiece(capturedPiece);
             }
 
             updatePiece(updatedP);
@@ -126,13 +203,13 @@ export default function Square(props: { i: number }) {
           return;
         }
 
-        if (thisP) {
-          console.log("p", thisP, flow());
-          if (thisP.color == "black" && flow() !== "turn-black") return;
-          if (thisP.color == "white" && flow() !== "turn-white") return;
-        }
+        // if (thisP) {
+        //   console.log("p", thisP, flow());
+        //   if (thisP.color == "black" && flow() !== "turn-black") return;
+        //   if (thisP.color == "white" && flow() !== "turn-white") return;
+        // }
 
-        console.log("set to", props.i, thisP, flow());
+        // console.log("set to", props.i, thisP, flow());
         setSelectedSquare(props.i);
       }}
       class=" bg-[#eeeed2] 
@@ -146,6 +223,7 @@ export default function Square(props: { i: number }) {
       data-shaded={shaded}
       data-clickable={clickable()}
       data-selected={selectedSquare() == props.i}
+      id={`square-${props.i}`}
     >
       <Show when={showContextMenu()}>
         <ContextMenu
@@ -157,44 +235,76 @@ export default function Square(props: { i: number }) {
             if (!p) return;
 
             if (gate == "measure") {
+              if (involvedQubits(p.circuit).length == 0) {
+                setShakes([p.id]);
+                setTimeout(() => {
+                  setShakes([]);
+
+                  setBubbles([
+                    {
+                      id: p.id,
+                      words: "I remain loyal",
+                    },
+                  ]);
+                  setTimeout(() => {
+                    setBubbles([]);
+                  }, 2000);
+                }, 600);
+                return;
+              }
               // Send to backend to execute circuit
               const data = await measure(p.circuit);
               console.log("measurement data", data);
 
               // Set each pieces'state accordingly
-              data.qubits.forEach((q, i) => {
-                const piece = pieces().find((p) => p.id == q.id);
-                if (!piece) {
-                  console.warn("cannot happen");
-                  return;
-                }
-
-                const color: Color =
-                  Number(data.measurement[i]) == 0 ? "black" : "white";
-
-                const updatedP: Piece = {
-                  ...piece,
-                  color,
-                  circuit: newCircuit(),
+              const piecesMap = data.qubits.map((q, i) => {
+                return {
+                  piece: pieces().find((p) => p.id == q.id)!,
+                  i,
                 };
-
-                updatePiece(updatedP);
-                setShake(true);
-                setTimeout(() => {
-                  setShake(false);
-                  setBubble(
-                    updatedP.color == p.color
-                      ? "I remain loyal!"
-                      : "Haha, I’ve switched sides!"
-                  );
-
-                  updatedP.prob_black = updatedP.color == "black" ? 1 : 0;
-                  updatePiece(updatedP);
-                  setTimeout(() => {
-                    setBubble();
-                  }, 2000);
-                }, 600);
               });
+
+              // I have a circuit, with some qubits entangled.
+              // I need to factor out the entangled system
+              // Leaving the circuit
+              // Clean the circuit
+
+              const entangledQubits = findEntangledMesh(p.circuit, p.id);
+
+              console.log(
+                "entangledQubits",
+                entangledQubits,
+                p.circuit.entanglements
+              );
+
+              const measuredPieces = piecesMap.filter((pm) =>
+                entangledQubits.includes(pm.piece.id)
+              );
+              measurePieces(data, measuredPieces);
+
+              const c = newCircuit();
+              c.entanglements = p.circuit.entanglements.filter(
+                (e) =>
+                  entangledQubits.includes(e.idA) ||
+                  entangledQubits.includes(e.idB)
+              );
+              c.actions = p.circuit.actions.filter(
+                (a) => !a.args.some((arg) => entangledQubits.includes(arg))
+              );
+              const updatedPieces = pieces().map((piece) =>
+                piece.circuit == p.circuit
+                  ? {
+                      ...piece,
+                      circuit: c,
+                    }
+                  : piece
+              );
+              setPieces(updatedPieces);
+
+              if (involvedQubits(c).length > 0) {
+                const m = await measure(c);
+                c.latex = m.latex;
+              }
 
               return;
             }
@@ -255,7 +365,6 @@ export default function Square(props: { i: number }) {
 
               batch(() => {
                 setPieces(updatedPieces);
-                setCircuits((cs) => [...cs]);
               });
               return;
             }
@@ -268,7 +377,6 @@ export default function Square(props: { i: number }) {
 
             const data = await measure(p.circuit);
             p.circuit.latex = data.latex;
-            setCircuits((cs) => [...cs]);
 
             // Set each pieces'state accordingly
             data.qubits.forEach((q, i) => {
@@ -297,6 +405,16 @@ export default function Square(props: { i: number }) {
           showContextMenu={showContextMenu}
           setShowContextMenu={setShowContextMenu}
         />
+      </Show>
+
+      <For each={lines()}>
+        {(l) => (
+          <Line fromDivId={`square-${props.i}`} toDivId={`square-${l}`} />
+        )}
+      </For>
+
+      <Show when={sameCircuitAsSelected()}>
+        <div class="absolute w-14 h-14 rounded-full bg-red-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"></div>
       </Show>
 
       <Show when={isValidMove()}>
@@ -328,7 +446,11 @@ export default function Square(props: { i: number }) {
           />
         )}
       </Show>
-      <PieceImg piece={piece()} shake={shake()} fade={!canMovePiece()} />
+      <PieceImg
+        piece={piece()}
+        shake={shakes().some((s) => s == piece()?.id)}
+        fade={!canMovePiece()}
+      />
 
       <Show when={piece()}>
         {(p) => (
@@ -396,10 +518,10 @@ export default function Square(props: { i: number }) {
         )}
       </Show>
 
-      <Show when={bubble()}>
+      <Show when={bubbles().find((b) => b.id == piece()?.id)}>
         {(b) => (
           <div class="px-2 py-1 border bg-white absolute right-0 -top-10  translate-x-1/2 z-20 drop-shadow relative-with-triangle">
-            {b()}
+            {b().words}
           </div>
         )}
       </Show>

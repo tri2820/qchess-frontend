@@ -42,3 +42,12 @@ body {
   border-right: 8px solid transparent;
   border-top: 8px solid #fff; /* Match the background color of the div */
 }
+
+.line {
+  position: fixed;
+  height: 2px;
+  @apply bg-red-500;
+  transform-origin: top left;
+  pointer-events: none;
+  z-index: 10;
+}

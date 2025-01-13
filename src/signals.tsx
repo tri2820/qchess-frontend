@@ -1,5 +1,11 @@
 import { createSignal } from "solid-js";
-import { initStateOf, listValidMoves, newCircuit, squareToPos } from "./utils";
+import {
+  findEntangledMesh,
+  initStateOf,
+  listValidMoves,
+  newCircuit,
+  squareToPos,
+} from "./utils";
 export type Gate = "h" | "cx" | "x" | "y" | "z" | "measure";
 export type Color = "white" | "black";
 export type Name = "rook" | "knight" | "queen" | "bishop" | "pawn" | "king";
@@ -22,6 +28,7 @@ export type Piece = {
     row: number;
     column: number;
   };
+  captured?: boolean;
 
   // For UI only
   prob_black: number;
@@ -42,8 +49,6 @@ export type Circuit = {
   latex?: string;
   entanglements: Entanglement[];
 };
-
-export const [circuits, setCircuits] = createSignal<Circuit[]>([]);
 
 // At first, each piece has its own circuit
 export const [pieces, setPieces] = createSignal<Piece[]>([
@@ -353,7 +358,7 @@ export const validMoves = () => {
   return listValidMoves(p, pieces());
 };
 
-export const [capturedPieces, setCapturedPieces] = createSignal<Piece[]>([]);
+export const capturedPieces = () => pieces().filter((p) => p.captured);
 export type Flow =
   | "turn-white"
   | "turn-black"
@@ -368,3 +373,20 @@ export const [pickAnother, setPickAnother] = createSignal<{
   first: number;
   resolve: (p: Piece) => void;
 }>();
+
+export const mesh = () => {
+  const p = selectedPiece();
+  if (!p) return [];
+  return findEntangledMesh(p.circuit, p.id);
+};
+
+export const entanglements = () => {
+  const p = selectedPiece();
+  if (!p) return [];
+  return p.circuit.entanglements;
+};
+
+export const [bubbles, setBubbles] = createSignal<
+  { id: string; words: string }[]
+>([]);
+export const [shakes, setShakes] = createSignal<string[]>([]);
