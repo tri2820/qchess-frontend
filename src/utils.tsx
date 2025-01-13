@@ -382,6 +382,7 @@ export function initStateOf(color: Color): State {
 
 export const newCircuit = (): Circuit => {
   return {
+    entanglements: [],
     id: crypto.randomUUID(),
     actions: [],
   };
@@ -395,6 +396,7 @@ export const prob0 = (s: State): number => {
 };
 
 type MeasurementData = {
+  entanglement: boolean;
   latex: string;
   measurement: string;
   probabilities: {
@@ -402,9 +404,15 @@ type MeasurementData = {
   };
   qubits: { id: string }[];
 };
+
+export type Qubit = {
+  id: string;
+  classicalState: 0 | 1;
+};
 export async function measure(circuit: Circuit): Promise<MeasurementData> {
-  const qubits = pieces()
-    .filter((p) => p.circuit == circuit)
+  const involvedPiecesId = circuit.actions.flatMap((a) => a.args);
+  const qubits: Qubit[] = pieces()
+    .filter((p0) => involvedPiecesId.includes(p0.id))
     .map((p) => {
       return {
         id: p.id,
@@ -416,6 +424,7 @@ export async function measure(circuit: Circuit): Promise<MeasurementData> {
     actions: circuit.actions,
     qubits,
   };
+  console.log("send", payload);
   const api_route = `${backend_url}/measure`;
   const response = await fetch(api_route, {
     method: "POST",

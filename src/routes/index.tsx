@@ -3,6 +3,7 @@ import { createEffect, For, onMount } from "solid-js";
 import GameEndedBanner from "~/components/GameEndedBanner";
 import PieceImg from "~/components/PieceImg";
 import Square from "~/components/Square";
+import "katex/dist/katex.min.css";
 import {
   capturedPieces,
   flow,

@@ -1,8 +1,10 @@
-import { batch, createSignal, onMount, Show, untrack } from "solid-js";
+import { batch, createSignal, Show } from "solid-js";
 import {
   capturedPieces,
   Color,
+  didAction,
   flow,
+  pickAnother,
   Piece,
   pieces,
   selectedPiece,
@@ -11,22 +13,23 @@ import {
   setCircuits,
   setDidAction,
   setFlow,
+  setPickAnother,
   setPieces,
   setSelectedSquare,
   validMoves,
 } from "~/signals";
 import {
-  initStateOf,
   measure,
   newCircuit,
-  prob0,
+  Qubit,
   removePiece,
   squareToPos,
   updatePiece,
 } from "~/utils";
+import magicPng from "../assets/magic2.png";
+import ContextMenu from "./ContextMenu";
 import PieceImg from "./PieceImg";
 import PromotionPicker from "./PromotionPicker";
-import ContextMenu from "./ContextMenu";
 
 export default function Square(props: { i: number }) {
   const [showContextMenu, setShowContextMenu] = createSignal<{
@@ -49,12 +52,27 @@ export default function Square(props: { i: number }) {
     return validMoves().some((m) => m.column == column && m.row == row);
   };
   const clickable = () => (piece() ? true : false) || isValidMove();
-
+  const canMovePiece = () => {
+    const p = piece();
+    if (!p) return false;
+    return (
+      (flow() == "turn-black" && p.color == "black") ||
+      (flow() == "turn-white" && p.color == "white")
+    );
+  };
   return (
     <div
       onClick={() => {
         const thisP = piece();
         const selectedP = selectedPiece();
+        const r = pickAnother();
+
+        if (r) {
+          if (!thisP) return;
+          console.log("resolve with", thisP);
+          r.resolve(thisP);
+          return;
+        }
 
         if (isValidMove()) {
           console.log("isValidMove");
@@ -121,6 +139,7 @@ export default function Square(props: { i: number }) {
       data-[shaded=true]:bg-[#769656] 
       flex items-center justify-center 
       data-[clickable=true]:cursor-pointer 
+      
       data-[selected=true]:!bg-blue-500 
       group
       relative "
@@ -130,7 +149,7 @@ export default function Square(props: { i: number }) {
     >
       <Show when={showContextMenu()}>
         <ContextMenu
-          onItemClick={async (gate) => {
+          onItemClick={async (e, gate) => {
             setShowContextMenu();
             setDidAction(true);
 
@@ -181,18 +200,72 @@ export default function Square(props: { i: number }) {
             }
 
             if (gate == "cx") {
-              // Select the other piece
-              // New circuit and set for both piece?
-              // Or spanning tree much
-              // check if they are entangled after
-              // I'm too lazy to check if they are entangled or not, maybe we can just all measure them?
+              console.log("create promise");
+              const promiseAnotherPiece = new Promise<Piece>((resolve) => {
+                console.log("set resolve", resolve);
+                setPickAnother({
+                  first: props.i,
+                  resolve,
+                });
+              });
+
+              e.stopPropagation();
+              e.preventDefault();
+              const anotherPiece = await promiseAnotherPiece;
+              setPickAnother();
+
+              const c = newCircuit();
+              c.actions = [
+                ...p.circuit.actions,
+                ...anotherPiece.circuit.actions,
+                {
+                  created_at: new Date().toISOString(),
+                  gate,
+                  args: [p.id, anotherPiece.id],
+                },
+              ].sort(
+                (a, b) =>
+                  new Date(a.created_at).getTime() -
+                  new Date(b.created_at).getTime()
+              );
+              c.entanglements = [
+                ...p.circuit.entanglements,
+                ...anotherPiece.circuit.entanglements,
+              ];
+
+              const data = await measure(c);
+
+              // merge circuits
+              c.latex = data.latex;
+
+              if (data.entanglement)
+                c.entanglements.push({
+                  idA: p.id,
+                  idB: anotherPiece.id,
+                });
+
+              const updatedPieces = pieces().map((p0) => {
+                const need_replace =
+                  p0.circuit == p.circuit || p0.circuit == anotherPiece.circuit;
+                return {
+                  ...p0,
+                  circuit: need_replace ? c : p0.circuit,
+                };
+              });
+
+              batch(() => {
+                setPieces(updatedPieces);
+                setCircuits((cs) => [...cs]);
+              });
               return;
             }
 
             p.circuit.actions.push({
+              created_at: new Date().toISOString(),
               gate,
               args: [p.id],
             });
+
             const data = await measure(p.circuit);
             p.circuit.latex = data.latex;
             setCircuits((cs) => [...cs]);
@@ -255,12 +328,31 @@ export default function Square(props: { i: number }) {
           />
         )}
       </Show>
-      <PieceImg piece={piece()} shake={shake()} />
+      <PieceImg piece={piece()} shake={shake()} fade={!canMovePiece()} />
 
       <Show when={piece()}>
         {(p) => (
           <Show when={p().name !== "king"}>
             <>
+              <Show when={pickAnother()}>
+                {(r) => (
+                  <>
+                    <Show
+                      when={props.i == r().first}
+                      fallback={
+                        <div class="absolute top-0 right-0 z-0 invisible group-hover:visible">
+                          <img src={magicPng} class="animate-spin-slow " />
+                        </div>
+                      }
+                    >
+                      <div class="absolute top-0 right-0 z-0 hue-rotate-180">
+                        <img src={magicPng} class="animate-spin-slow " />
+                      </div>
+                    </Show>
+                  </>
+                )}
+              </Show>
+
               <div
                 onClick={(e) => {
                   setSelectedSquare(props.i);
@@ -269,7 +361,10 @@ export default function Square(props: { i: number }) {
                     top: e.clientY,
                   });
                 }}
-                class="absolute top-1 right-1 bg-white rounded-full p-1 hover:bg-neutral-200 invisible group-hover:visible"
+                class="absolute top-1 right-1 bg-white rounded-full p-1 hover:bg-neutral-200 
+                z-20 invisible data-[show=true]:visible"
+                data-show={!didAction()}
+                // invisible group-hover:visible
               >
                 <svg
                   fill="currentColor"
@@ -287,7 +382,7 @@ export default function Square(props: { i: number }) {
 
               <div
                 data-white={p().color == "white"}
-                class="absolute bg-white w-2/3 bottom-1 h-3 border data-[white=true]:border-neutral-800 drop-shadow"
+                class="absolute bg-white w-2/3 bottom-1 h-3 border data-[white=true]:border-neutral-800 drop-shadow z-20"
               >
                 <div
                   class="bg-black h-full transition-all duration-500"

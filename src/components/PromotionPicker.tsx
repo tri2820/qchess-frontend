@@ -31,7 +31,7 @@ function PickerItem(props: { name: Name } & PickerProps) {
 
 export default function PromotionPicker(props: PickerProps) {
   return (
-    <div class="absolute -top-2 right-0 bg-white translate-x-full z-10 drop-shadow">
+    <div class="absolute -top-2 right-0 bg-white translate-x-full z-30 drop-shadow">
       <PickerItem name="queen" {...props} />
       <PickerItem name="rook" {...props} />
       <PickerItem name="knight" {...props} />

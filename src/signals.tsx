@@ -28,13 +28,19 @@ export type Piece = {
 };
 
 export type Action = {
+  created_at: string;
   gate: Gate;
   args: PieceId[];
+};
+export type Entanglement = {
+  idA: PieceId;
+  idB: PieceId;
 };
 export type Circuit = {
   id: string;
   actions: Action[];
   latex?: string;
+  entanglements: Entanglement[];
 };
 
 export const [circuits, setCircuits] = createSignal<Circuit[]>([]);
@@ -358,3 +364,7 @@ export type Flow =
 
 export const [didAction, setDidAction] = createSignal(false);
 export const [flow, setFlow] = createSignal<Flow>("turn-white");
+export const [pickAnother, setPickAnother] = createSignal<{
+  first: number;
+  resolve: (p: Piece) => void;
+}>();

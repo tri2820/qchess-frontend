@@ -2,7 +2,12 @@
 module.exports = {
   content: ["./src/**/*.{html,js,jsx,ts,tsx}"],
   theme: {
-    extend: {}
+    extend: {
+      animation: {
+        'spin-slow': 'spin 8s linear infinite', // Adjust duration as needed
+      },
+
+    }
   },
   plugins: []
 };

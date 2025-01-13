@@ -4,7 +4,7 @@ import { didAction, Gate } from "~/signals";
 export default function ContextMenu(props: {
   showContextMenu: Accessor<any>;
   setShowContextMenu: Setter<any>;
-  onItemClick: (gate: Gate) => void;
+  onItemClick: (e: MouseEvent, gate: Gate) => void;
 }) {
   onMount(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -35,40 +35,40 @@ export default function ContextMenu(props: {
             <>
               <button
                 class="menu-item"
-                onClick={() => {
-                  props.onItemClick("h");
+                onClick={(e) => {
+                  props.onItemClick(e, "h");
                 }}
               >
                 Hadamard
               </button>
               <button
                 class="menu-item"
-                onClick={() => {
-                  props.onItemClick("cx");
+                onClick={(e) => {
+                  props.onItemClick(e, "cx");
                 }}
               >
                 CNOT
               </button>
               <button
                 class="menu-item"
-                onClick={() => {
-                  props.onItemClick("x");
+                onClick={(e) => {
+                  props.onItemClick(e, "x");
                 }}
               >
                 X gate
               </button>
               <button
                 class="menu-item"
-                onClick={() => {
-                  props.onItemClick("y");
+                onClick={(e) => {
+                  props.onItemClick(e, "y");
                 }}
               >
                 Y gate
               </button>
               <button
                 class="menu-item"
-                onClick={() => {
-                  props.onItemClick("z");
+                onClick={(e) => {
+                  props.onItemClick(e, "z");
                 }}
               >
                 Z gate
@@ -77,8 +77,8 @@ export default function ContextMenu(props: {
               <div class="h-[1px] border-b" />
               <button
                 class="menu-item"
-                onClick={() => {
-                  props.onItemClick("measure");
+                onClick={(e) => {
+                  props.onItemClick(e, "measure");
                 }}
               >
                 Measure

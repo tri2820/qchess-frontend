@@ -8,6 +8,7 @@ export default function PieceImg(props: {
   };
   shake?: boolean;
   size?: "sm" | "md";
+  fade?: boolean;
 }) {
   const imgSrc = () => {
     const p = props.piece;
@@ -17,8 +18,9 @@ export default function PieceImg(props: {
 
   return (
     <div
+      data-fade={props.fade}
       class={
-        "w-20 h-20 p-1 data-[sm=true]:w-14 data-[sm=true]:h-14 " +
+        "w-20 h-20 p-1 data-[sm=true]:w-14 data-[sm=true]:h-14 z-20  data-[fade=true]:opacity-50 " +
         (props.shake ? "shake" : "")
       }
       data-sm={props.size == "sm"}
