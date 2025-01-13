@@ -1,5 +1,7 @@
 import { For, onMount } from "solid-js";
+import PieceImg from "~/components/PieceImg";
 import Square from "~/components/Square";
+import { capturedPieces } from "~/signals";
 
 const squares = Array(64).fill(null);
 
@@ -17,11 +19,29 @@ export default function Home() {
     }
   });
 
+  const capturedBlacks = () =>
+    capturedPieces().filter((p) => p.color == "black");
+  const capturedWhites = () =>
+    capturedPieces().filter((p) => p.color == "white");
+
   return (
     <div class="h-screen flex items-center justify-center">
-      {/* <div>{JSON.stringify(highlightValidMoves())}</div> */}
-      <div class="bg-white border   grid grid-cols-8">
-        <For each={squares}>{(_, i) => <Square i={i()} />}</For>
+      <div class="relative">
+        <div class="absolute top-0 left-0 bottom-0 -translate-x-full flex flex-col">
+          <div class=" flex-1 flex max-w-72 flex-wrap">
+            <For each={capturedWhites()}>
+              {(p) => <PieceImg size="sm" piece={p} />}
+            </For>
+          </div>
+          <div class=" flex-1 flex max-w-72 flex-wrap-reverse">
+            <For each={capturedBlacks()}>
+              {(p) => <PieceImg size="sm" piece={p} />}
+            </For>
+          </div>
+        </div>
+        <div class="bg-white border flex-1  grid grid-cols-8">
+          <For each={squares}>{(_, i) => <Square i={i()} />}</For>
+        </div>
       </div>
     </div>
   );

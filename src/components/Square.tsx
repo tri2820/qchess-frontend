@@ -11,6 +11,7 @@ import {
   validMoves,
 } from "~/signals";
 import { squareToPos } from "~/utils";
+import PieceImg from "./PieceImg";
 
 export default function Square(props: { i: number }) {
   const { row, column } = squareToPos(props.i);
@@ -66,11 +67,7 @@ export default function Square(props: { i: number }) {
       data-valid={isValidMove()}
     >
       {/* <div class="line-clamp-1">{piece()?.id}</div> */}
-      <div class="w-20 h-20 p-1">
-        <Show when={imgSrc()}>
-          {(src) => <img src={src()} class="w-full h-full" />}
-        </Show>
-      </div>
+      <PieceImg piece={piece()} />
     </div>
   );
 }
