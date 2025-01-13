@@ -1,4 +1,4 @@
-import { ValidMove, Piece } from "./signals";
+import { ValidMove, Piece, setPieces } from "./signals";
 
 export function squareToPos(i: number) {
   const row = Math.floor(i / 8);
@@ -351,4 +351,13 @@ export function listValidMoves(p: Piece, pieces: Piece[]) {
   }
 
   return moves;
+}
+
+export function updatePiece(updatedP: Piece) {
+  setPieces((pieces) =>
+    pieces.map((piece) => (piece.id === updatedP.id ? updatedP : piece))
+  );
+}
+export function removePiece(id: string) {
+  setPieces((pieces) => pieces.filter((piece) => piece.id !== id));
 }

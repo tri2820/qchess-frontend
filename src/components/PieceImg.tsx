@@ -1,7 +1,13 @@
 import { Show } from "solid-js";
-import { Piece } from "~/signals";
+import { Color, Name, Piece } from "~/signals";
 
-export default function PieceImg(props: { piece?: Piece; size?: "sm" | "md" }) {
+export default function PieceImg(props: {
+  piece?: {
+    name: Name;
+    color: Color;
+  };
+  size?: "sm" | "md";
+}) {
   const imgSrc = () => {
     const p = props.piece;
     if (!p) return;

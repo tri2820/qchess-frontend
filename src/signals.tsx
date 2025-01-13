@@ -1,14 +1,16 @@
 import { createSignal } from "solid-js";
 import { listValidMoves, squareToPos } from "./utils";
 
+export type Color = "white" | "black";
+export type Name = "rook" | "knight" | "queen" | "bishop" | "pawn" | "king";
 export type ValidMove = {
   row: number;
   column: number;
 };
 export type Piece = {
   id: string;
-  color: "white" | "black";
-  name: "rook" | "knight" | "queen" | "bishop" | "pawn" | "king";
+  color: Color;
+  name: Name;
   state: {
     alpha_0: [number, number];
     beta_1: [number, number];
