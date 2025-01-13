@@ -7,6 +7,7 @@ import {
   capturedPieces,
   flow,
   selectedCircuitLatex,
+  selectedPiece,
   setDidAction,
 } from "~/signals";
 
@@ -26,11 +27,15 @@ export default function Home() {
   });
 
   createEffect(() => {
+    const p = selectedPiece();
     const latex = selectedCircuitLatex();
-    if (!latex) return;
-    katex.render(latex, latexEl, {
-      throwOnError: false,
-    });
+    katex.render(
+      latex ?? (p ? (p.color == "black" ? "|0\\rangle" : "|1\\rangle") : ""),
+      latexEl,
+      {
+        throwOnError: false,
+      }
+    );
   });
 
   return (
@@ -40,7 +45,7 @@ export default function Home() {
         <div class="text-sm">A game about superposition and loyalty</div>
       </div>
 
-      <div>
+      <div class="h-4">
         <div ref={latexEl}></div>
       </div>
 
