@@ -121,23 +121,11 @@ export default function Square(props: { i: number }) {
       flex items-center justify-center 
       data-[clickable=true]:cursor-pointer 
       data-[selected=true]:!bg-blue-500 
+      group
       relative "
       data-shaded={shaded}
       data-clickable={clickable()}
       data-selected={selectedSquare() == props.i}
-      onContextMenu={(e) => {
-        const p = piece();
-        if (p) {
-          if (p.name == "king") return;
-          e.preventDefault();
-          e.stopPropagation();
-          setSelectedSquare(props.i);
-          setShowContextMenu({
-            left: e.clientX,
-            top: e.clientY,
-          });
-        }
-      }}
     >
       <Show when={showContextMenu()}>
         <ContextMenu
@@ -269,17 +257,43 @@ export default function Square(props: { i: number }) {
       <Show when={piece()}>
         {(p) => (
           <Show when={p().name !== "king"}>
-            <div
-              data-white={p().color == "white"}
-              class="absolute bg-white w-2/3 bottom-1 h-3 border data-[white=true]:border-neutral-800 drop-shadow"
-            >
+            <>
               <div
-                class="bg-black h-full transition-all duration-500"
-                style={{
-                  width: `${p().prob_black * 100}%`,
+                onClick={(e) => {
+                  setSelectedSquare(props.i);
+                  setShowContextMenu({
+                    left: e.clientX,
+                    top: e.clientY,
+                  });
                 }}
-              ></div>
-            </div>
+                class="absolute top-1 right-1 bg-white rounded-full p-1 hover:bg-neutral-200 invisible group-hover:visible"
+              >
+                <svg
+                  fill="currentColor"
+                  stroke-width="0"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  height="1em"
+                  width="1em"
+                  style="overflow: visible; color: currentcolor;"
+                >
+                  <path d="M3.102 20.898c.698.699 1.696 1.068 2.887 1.068 1.742 0 3.855-.778 6.012-2.127 2.156 1.35 4.27 2.127 6.012 2.127 1.19 0 2.188-.369 2.887-1.068 1.269-1.269 1.411-3.413.401-6.039-.358-.932-.854-1.895-1.457-2.859a16.792 16.792 0 0 0 1.457-2.859c1.01-2.626.867-4.771-.401-6.039-.698-.699-1.696-1.068-2.887-1.068-1.742 0-3.855.778-6.012 2.127-2.156-1.35-4.27-2.127-6.012-2.127-1.19 0-2.188.369-2.887 1.068C1.833 4.371 1.69 6.515 2.7 9.141c.359.932.854 1.895 1.457 2.859A16.792 16.792 0 0 0 2.7 14.859c-1.01 2.626-.867 4.77.402 6.039zm16.331-5.321c.689 1.79.708 3.251.052 3.907-.32.32-.815.482-1.473.482-1.167 0-2.646-.503-4.208-1.38a26.611 26.611 0 0 0 4.783-4.784c.336.601.623 1.196.846 1.775zM12 17.417a23.568 23.568 0 0 1-2.934-2.483A23.998 23.998 0 0 1 6.566 12 23.74 23.74 0 0 1 12 6.583a23.568 23.568 0 0 1 2.934 2.483 23.998 23.998 0 0 1 2.5 2.934A23.74 23.74 0 0 1 12 17.417zm6.012-13.383c.657 0 1.152.162 1.473.482.656.656.638 2.117-.052 3.907-.223.579-.51 1.174-.846 1.775a26.448 26.448 0 0 0-4.783-4.784c1.562-.876 3.041-1.38 4.208-1.38zM4.567 8.423c-.689-1.79-.708-3.251-.052-3.907.32-.32.815-.482 1.473-.482 1.167 0 2.646.503 4.208 1.38a26.448 26.448 0 0 0-4.783 4.784 13.934 13.934 0 0 1-.846-1.775zm0 7.154c.223-.579.51-1.174.846-1.775a26.448 26.448 0 0 0 4.783 4.784c-1.563.877-3.041 1.38-4.208 1.38-.657 0-1.152-.162-1.473-.482-.656-.656-.637-2.117.052-3.907z"></path>
+                  <path d="M12 9.426A2.574 2.574 0 1 0 12 14.574 2.574 2.574 0 1 0 12 9.426z"></path>
+                </svg>
+              </div>
+
+              <div
+                data-white={p().color == "white"}
+                class="absolute bg-white w-2/3 bottom-1 h-3 border data-[white=true]:border-neutral-800 drop-shadow"
+              >
+                <div
+                  class="bg-black h-full transition-all duration-500"
+                  style={{
+                    width: `${p().prob_black * 100}%`,
+                  }}
+                ></div>
+              </div>
+            </>
           </Show>
         )}
       </Show>
