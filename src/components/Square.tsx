@@ -8,6 +8,7 @@ import {
   selectedPiece,
   selectedSquare,
   setCapturedPieces,
+  setCircuits,
   setDidAction,
   setFlow,
   setPieces,
@@ -193,6 +194,8 @@ export default function Square(props: { i: number }) {
               args: [p.id],
             });
             const data = await measure(p.circuit);
+            p.circuit.latex = data.latex;
+            setCircuits((cs) => [...cs]);
 
             // Set each pieces'state accordingly
             data.qubits.forEach((q, i) => {

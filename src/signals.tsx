@@ -34,6 +34,7 @@ export type Action = {
 export type Circuit = {
   id: string;
   actions: Action[];
+  latex?: string;
 };
 
 export const [circuits, setCircuits] = createSignal<Circuit[]>([]);
@@ -331,6 +332,7 @@ export const [pieces, setPieces] = createSignal<Piece[]>([
 ]);
 
 export const [selectedSquare, setSelectedSquare] = createSignal<number>();
+export const selectedCircuitLatex = () => selectedPiece()?.circuit.latex;
 export const selectedPiece = () => {
   const i = selectedSquare();
   if (i === undefined) return;

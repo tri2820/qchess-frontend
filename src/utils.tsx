@@ -395,6 +395,7 @@ export const prob0 = (s: State): number => {
 };
 
 type MeasurementData = {
+  latex: string;
   measurement: string;
   probabilities: {
     [state: string]: number;
@@ -421,7 +422,10 @@ export async function measure(circuit: Circuit): Promise<MeasurementData> {
     headers: {
       "Content-Type": "application/json",
     },
+
     body: JSON.stringify(payload),
   });
-  return await response.json();
+  const data = await response.json();
+  console.log("data", data);
+  return data;
 }
