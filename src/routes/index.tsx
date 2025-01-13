@@ -1,5 +1,4 @@
 import katex from "katex";
-import "katex/dist/katex.min.css";
 import { createEffect, For, Show } from "solid-js";
 import GameEndedBanner from "~/components/GameEndedBanner";
 import PieceImg from "~/components/PieceImg";
