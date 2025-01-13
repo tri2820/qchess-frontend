@@ -8,16 +8,22 @@ import {
   selectedPiece,
   selectedSquare,
   setCapturedPieces,
+  setDidAction,
   setFlow,
   setPieces,
   setSelectedSquare,
   validMoves,
 } from "~/signals";
-import { removePiece, squareToPos, updatePiece } from "~/utils";
+import { measure, prob0, removePiece, squareToPos, updatePiece } from "~/utils";
 import PieceImg from "./PieceImg";
 import PromotionPicker from "./PromotionPicker";
+import ContextMenu from "./ContextMenu";
 
 export default function Square(props: { i: number }) {
+  const [showContextMenu, setShowContextMenu] = createSignal<{
+    left: number;
+    top: number;
+  }>();
   const { row, column } = squareToPos(props.i);
   const [promotion, setPromotion] = createSignal<Piece>();
   const shaded = Math.abs(row - column) % 2 == 1;
@@ -105,7 +111,52 @@ export default function Square(props: { i: number }) {
       data-shaded={shaded}
       data-clickable={clickable()}
       data-selected={selectedSquare() == props.i}
+      onContextMenu={(e) => {
+        if (piece()) {
+          e.preventDefault();
+          e.stopPropagation();
+          setSelectedSquare(props.i);
+          setShowContextMenu({
+            left: e.clientX,
+            top: e.clientY,
+          });
+        }
+      }}
     >
+      <Show when={showContextMenu()}>
+        <ContextMenu
+          onItemClick={async (gate) => {
+            setShowContextMenu();
+            setDidAction(true);
+
+            const p = piece();
+            if (!p) return;
+
+            if (gate == "measure") {
+              const measurement = await measure(p.circuit);
+              console.log("measurement", measurement);
+              // Send to backend to execute circuit
+              return;
+            }
+
+            if (gate == "cx") {
+              // Select the other piece
+              // New circuit and set for both piece?
+              // Or spanning tree much
+              // check if they are entangled after
+              return;
+            }
+
+            p.circuit.actions.push({
+              gate,
+              args: [p.id],
+            });
+          }}
+          showContextMenu={showContextMenu}
+          setShowContextMenu={setShowContextMenu}
+        />
+      </Show>
+
       <Show when={isValidMove()}>
         <Show
           when={piece()}
@@ -143,7 +194,7 @@ export default function Square(props: { i: number }) {
             <div
               class="bg-black h-full"
               style={{
-                width: "0%",
+                width: `${prob0(p().state) * 100}%`,
               }}
             ></div>
           </div>

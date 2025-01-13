@@ -1,249 +1,299 @@
 import { createSignal } from "solid-js";
-import { listValidMoves, squareToPos } from "./utils";
-
+import { initStateOf, listValidMoves, newCircuit, squareToPos } from "./utils";
+export type Gate = "h" | "cx" | "x" | "y" | "z" | "measure";
 export type Color = "white" | "black";
 export type Name = "rook" | "knight" | "queen" | "bishop" | "pawn" | "king";
 export type ValidMove = {
   row: number;
   column: number;
 };
+export type State = {
+  alpha: [number, number];
+  beta: [number, number];
+};
+
+export type PieceId = string;
 export type Piece = {
-  id: string;
+  id: PieceId;
   color: Color;
   name: Name;
-  state: {
-    alpha_0: [number, number];
-    beta_1: [number, number];
-  };
+  circuit: Circuit;
   position: {
     row: number;
     column: number;
   };
+
+  // For UI only
+  state: State;
 };
 
+export type Action = {
+  gate: Gate;
+  args: PieceId[];
+};
+export type Circuit = {
+  id: string;
+  actions: Action[];
+};
+
+export const [circuits, setCircuits] = createSignal<Circuit[]>([]);
+
+// At first, each piece has its own circuit
 export const [pieces, setPieces] = createSignal<Piece[]>([
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "rook",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 0, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "knight",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 1, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "bishop",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 2, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "queen",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 3, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "king",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 4, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "bishop",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 5, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "knight",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 6, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "rook",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 7, row: 0 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 0, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 1, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 2, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 3, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 4, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 5, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 6, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "black",
     name: "pawn",
-    state: { alpha_0: [0, 0], beta_1: [1, 1] },
+    circuit: newCircuit(),
+    state: initStateOf("black"),
     position: { column: 7, row: 1 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "rook",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 0, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "knight",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 1, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "bishop",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 2, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "queen",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 3, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "king",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 4, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "bishop",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 5, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "knight",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 6, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "rook",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 7, row: 7 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 0, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 1, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 2, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 3, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 4, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 5, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 6, row: 6 },
   },
   {
     id: crypto.randomUUID(),
     color: "white",
     name: "pawn",
-    state: { alpha_0: [1, 1], beta_1: [0, 0] },
+    circuit: newCircuit(),
+    state: initStateOf("white"),
     position: { column: 7, row: 6 },
   },
 ]);
@@ -271,4 +321,19 @@ export type Flow =
   // black-promotion
   | "ended-white-win"
   | "ended-black-win";
+
+export const [didAction, setDidAction] = createSignal(false);
 export const [flow, setFlow] = createSignal<Flow>("turn-white");
+export const systemState = () => {
+  return {
+    gates: [],
+    states: pieces()
+      .filter((p) => !["king", "pawn"].includes(p.name))
+      .map((p) => {
+        return {
+          id: p.id,
+          state: p.state,
+        };
+      }),
+  };
+};

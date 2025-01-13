@@ -1,35 +1,29 @@
-import { For, onMount, Show } from "solid-js";
+import { createEffect, For, onMount, Show } from "solid-js";
 import GameEndedBanner from "~/components/GameEndedBanner";
 import PieceImg from "~/components/PieceImg";
 import Square from "~/components/Square";
-import { capturedPieces, flow } from "~/signals";
+import { capturedPieces, flow, setDidAction, systemState } from "~/signals";
 
 const squares = Array(64).fill(null);
 
 export default function Home() {
-  onMount(async () => {
-    // try {
-    //   const backend_url = import.meta.env.DEV
-    //     ? import.meta.env.VITE_BACKEND_URL_DEV
-    //     : import.meta.env.VITE_BACKEND_URL_PROD;
-    //   const response = await fetch(backend_url);
-    //   const data = await response.json();
-    //   console.log(data);
-    // } catch (error) {
-    //   console.error("Error fetching data:", error);
-    // }
-  });
+  onMount(async () => {});
 
   const capturedBlacks = () =>
     capturedPieces().filter((p) => p.color == "black");
   const capturedWhites = () =>
     capturedPieces().filter((p) => p.color == "white");
 
+  createEffect(() => {
+    const _ = flow();
+    setDidAction(false);
+  });
+
   return (
     <div class="h-screen flex items-center  flex-col space-y-4">
       <div class="text-center pt-8 space-y-1">
         <div class="text-2xl font-bold">QChess</div>
-        <div class="text-sm">A game about quantum awesomeness and loyalty</div>
+        <div class="text-sm">A game about superposition and loyalty</div>
       </div>
 
       <div class="relative">

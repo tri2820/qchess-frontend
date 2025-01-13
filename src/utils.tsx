@@ -1,4 +1,16 @@
-import { ValidMove, Piece, setPieces } from "./signals";
+import {
+  ValidMove,
+  Piece,
+  setPieces,
+  Color,
+  State,
+  Circuit,
+  pieces,
+} from "./signals";
+
+const backend_url = import.meta.env.DEV
+  ? import.meta.env.VITE_BACKEND_URL_DEV
+  : import.meta.env.VITE_BACKEND_URL_PROD;
 
 export function squareToPos(i: number) {
   const row = Math.floor(i / 8);
@@ -360,4 +372,53 @@ export function updatePiece(updatedP: Piece) {
 }
 export function removePiece(id: string) {
   setPieces((pieces) => pieces.filter((piece) => piece.id !== id));
+}
+
+export function initStateOf(color: Color): State {
+  return color == "black"
+    ? { alpha: [1, 0], beta: [0, 0] }
+    : { alpha: [0, 0], beta: [1, 0] };
+}
+
+export const newCircuit = (): Circuit => {
+  return {
+    id: crypto.randomUUID(),
+    actions: [],
+  };
+};
+
+// Function to calculate the probability of measuring |0⟩
+export const prob0 = (s: State): number => {
+  const [realAlpha, imagAlpha] = s.alpha;
+  // Calculate the squared magnitude of alpha (|alpha|^2)
+  return realAlpha * realAlpha + imagAlpha * imagAlpha;
+};
+
+export async function measure(circuit: Circuit) {
+  const qubits = pieces()
+    .filter((p) => p.circuit == circuit)
+    .map((p) => {
+      return {
+        id: p.id,
+        classicalState: p.color ? 0 : 1,
+      };
+    });
+  const payload = {
+    actions: circuit.actions,
+    qubits,
+  };
+  try {
+    const api_route = `${backend_url}/measure`;
+    const response = await fetch(api_route, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const measurement = await response.json();
+    return measurement;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 }

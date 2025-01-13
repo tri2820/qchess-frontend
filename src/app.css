@@ -10,3 +10,10 @@ body {
   background: rgb(var(--background-rgb));
   color: rgb(var(--foreground-rgb));
 }
+
+.menu-item {
+  
+  box-sizing: border-box;
+  @apply p-2 m-1 rounded hover:bg-neutral-500/20;
+
+}
