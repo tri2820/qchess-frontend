@@ -14,7 +14,15 @@ import {
   setSelectedSquare,
   validMoves,
 } from "~/signals";
-import { measure, prob0, removePiece, squareToPos, updatePiece } from "~/utils";
+import {
+  initStateOf,
+  measure,
+  newCircuit,
+  prob0,
+  removePiece,
+  squareToPos,
+  updatePiece,
+} from "~/utils";
 import PieceImg from "./PieceImg";
 import PromotionPicker from "./PromotionPicker";
 import ContextMenu from "./ContextMenu";
@@ -24,14 +32,21 @@ export default function Square(props: { i: number }) {
     left: number;
     top: number;
   }>();
+  const [bubble, setBubble] = createSignal<string>();
+  const [shake, setShake] = createSignal(false);
   const { row, column } = squareToPos(props.i);
   const [promotion, setPromotion] = createSignal<Piece>();
   const shaded = Math.abs(row - column) % 2 == 1;
   const piece = () =>
     pieces().find((p) => p.position.row == row && p.position.column == column);
 
-  const isValidMove = () =>
-    validMoves().some((m) => m.column == column && m.row == row);
+  const isValidMove = () => {
+    const p = selectedPiece();
+    if (!p) return false;
+    if (p.color == "black" && flow() !== "turn-black") return;
+    if (p.color == "white" && flow() !== "turn-white") return;
+    return validMoves().some((m) => m.column == column && m.row == row);
+  };
   const clickable = () => (piece() ? true : false) || isValidMove();
 
   return (
@@ -106,13 +121,14 @@ export default function Square(props: { i: number }) {
       flex items-center justify-center 
       data-[clickable=true]:cursor-pointer 
       data-[selected=true]:!bg-blue-500 
-      
       relative "
       data-shaded={shaded}
       data-clickable={clickable()}
       data-selected={selectedSquare() == props.i}
       onContextMenu={(e) => {
-        if (piece()) {
+        const p = piece();
+        if (p) {
+          if (p.name == "king") return;
           e.preventDefault();
           e.stopPropagation();
           setSelectedSquare(props.i);
@@ -133,9 +149,45 @@ export default function Square(props: { i: number }) {
             if (!p) return;
 
             if (gate == "measure") {
-              const measurement = await measure(p.circuit);
-              console.log("measurement", measurement);
               // Send to backend to execute circuit
+              const data = await measure(p.circuit);
+              console.log("measurement data", data);
+
+              // Set each pieces'state accordingly
+              data.qubits.forEach((q, i) => {
+                const piece = pieces().find((p) => p.id == q.id);
+                if (!piece) {
+                  console.warn("cannot happen");
+                  return;
+                }
+
+                const color: Color =
+                  Number(data.measurement[i]) == 0 ? "black" : "white";
+
+                const updatedP: Piece = {
+                  ...piece,
+                  color,
+                  circuit: newCircuit(),
+                };
+
+                updatePiece(updatedP);
+                setShake(true);
+                setTimeout(() => {
+                  setShake(false);
+                  setBubble(
+                    updatedP.color == p.color
+                      ? "I remain loyal!"
+                      : "Haha, I’ve switched sides!"
+                  );
+
+                  updatedP.prob_black = updatedP.color == "black" ? 1 : 0;
+                  updatePiece(updatedP);
+                  setTimeout(() => {
+                    setBubble();
+                  }, 2000);
+                }, 600);
+              });
+
               return;
             }
 
@@ -144,12 +196,38 @@ export default function Square(props: { i: number }) {
               // New circuit and set for both piece?
               // Or spanning tree much
               // check if they are entangled after
+              // I'm too lazy to check if they are entangled or not, maybe we can just all measure them?
               return;
             }
 
             p.circuit.actions.push({
               gate,
               args: [p.id],
+            });
+            const data = await measure(p.circuit);
+
+            // Set each pieces'state accordingly
+            data.qubits.forEach((q, i) => {
+              const piece = pieces().find((p) => p.id == q.id);
+              if (!piece) {
+                console.warn("cannot happen");
+                return;
+              }
+
+              const probs_where_0_at_i = Object.keys(data.probabilities)
+                .filter((state) => state[i] == "0")
+                .map((s) => data.probabilities[s]);
+              const prob_black = probs_where_0_at_i.reduce(
+                (acc, prob) => acc + prob,
+                0
+              );
+
+              const updatedP: Piece = {
+                ...piece,
+                prob_black,
+              };
+
+              updatePiece(updatedP);
             });
           }}
           showContextMenu={showContextMenu}
@@ -186,17 +264,30 @@ export default function Square(props: { i: number }) {
           />
         )}
       </Show>
-      <PieceImg piece={piece()} />
+      <PieceImg piece={piece()} shake={shake()} />
 
       <Show when={piece()}>
         {(p) => (
-          <div class="absolute bg-white w-2/3 bottom-1 h-3 border drop-shadow">
+          <Show when={p().name !== "king"}>
             <div
-              class="bg-black h-full"
-              style={{
-                width: `${prob0(p().state) * 100}%`,
-              }}
-            ></div>
+              data-white={p().color == "white"}
+              class="absolute bg-white w-2/3 bottom-1 h-3 border data-[white=true]:border-neutral-800 drop-shadow"
+            >
+              <div
+                class="bg-black h-full transition-all duration-500"
+                style={{
+                  width: `${p().prob_black * 100}%`,
+                }}
+              ></div>
+            </div>
+          </Show>
+        )}
+      </Show>
+
+      <Show when={bubble()}>
+        {(b) => (
+          <div class="px-2 py-1 border bg-white absolute right-0 -top-10  translate-x-1/2 z-20 drop-shadow relative-with-triangle">
+            {b()}
           </div>
         )}
       </Show>

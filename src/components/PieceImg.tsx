@@ -6,6 +6,7 @@ export default function PieceImg(props: {
     name: Name;
     color: Color;
   };
+  shake?: boolean;
   size?: "sm" | "md";
 }) {
   const imgSrc = () => {
@@ -16,7 +17,10 @@ export default function PieceImg(props: {
 
   return (
     <div
-      class="w-20 h-20 p-1 data-[sm=true]:w-14 data-[sm=true]:h-14"
+      class={
+        "w-20 h-20 p-1 data-[sm=true]:w-14 data-[sm=true]:h-14 " +
+        (props.shake ? "shake" : "")
+      }
       data-sm={props.size == "sm"}
     >
       <Show when={imgSrc()}>

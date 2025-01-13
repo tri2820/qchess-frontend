@@ -17,3 +17,28 @@ body {
   @apply p-2 m-1 rounded hover:bg-neutral-500/20;
 
 }
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.relative-with-triangle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; /* Position the triangle below the div */
+  left: 30%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fff; /* Match the background color of the div */
+}

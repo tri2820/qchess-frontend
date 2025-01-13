@@ -1,8 +1,8 @@
-import { createEffect, For, onMount, Show } from "solid-js";
+import { createEffect, For, onMount } from "solid-js";
 import GameEndedBanner from "~/components/GameEndedBanner";
 import PieceImg from "~/components/PieceImg";
 import Square from "~/components/Square";
-import { capturedPieces, flow, setDidAction, systemState } from "~/signals";
+import { capturedPieces, flow, setDidAction } from "~/signals";
 
 const squares = Array(64).fill(null);
 

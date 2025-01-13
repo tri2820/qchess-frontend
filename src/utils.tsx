@@ -394,31 +394,34 @@ export const prob0 = (s: State): number => {
   return realAlpha * realAlpha + imagAlpha * imagAlpha;
 };
 
-export async function measure(circuit: Circuit) {
+type MeasurementData = {
+  measurement: string;
+  probabilities: {
+    [state: string]: number;
+  };
+  qubits: { id: string }[];
+};
+export async function measure(circuit: Circuit): Promise<MeasurementData> {
   const qubits = pieces()
     .filter((p) => p.circuit == circuit)
     .map((p) => {
       return {
         id: p.id,
-        classicalState: p.color ? 0 : 1,
+        classicalState: p.color == "black" ? 0 : 1,
       };
     });
+
   const payload = {
     actions: circuit.actions,
     qubits,
   };
-  try {
-    const api_route = `${backend_url}/measure`;
-    const response = await fetch(api_route, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const measurement = await response.json();
-    return measurement;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+  const api_route = `${backend_url}/measure`;
+  const response = await fetch(api_route, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  return await response.json();
 }
