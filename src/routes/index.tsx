@@ -44,18 +44,18 @@ export default function Home() {
         </div>
 
         <div
-          class="text-center bg-black text-white py-1 mb-2 invisible data-[show=true]:visible"
+          class="text-center bg-black text-white py-1 invisible data-[show=true]:visible"
           data-show={flow() == "turn-black"}
         >
           black's turn
         </div>
 
-        <div class="bg-white border flex-1  grid grid-cols-8">
+        <div class="bg-white  flex-1  grid grid-cols-8">
           <For each={squares}>{(_, i) => <Square i={i()} />}</For>
         </div>
 
         <div
-          class="text-center bg-white text-black py-1 mb-2 invisible data-[show=true]:visible"
+          class="text-center bg-white text-black py-1 invisible data-[show=true]:visible"
           data-show={flow() == "turn-white"}
         >
           white's turn
