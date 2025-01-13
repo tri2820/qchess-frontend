@@ -267,6 +267,8 @@ export const [capturedPieces, setCapturedPieces] = createSignal<Piece[]>([]);
 export type Flow =
   | "turn-white"
   | "turn-black"
+  // white-promotion
+  // black-promotion
   | "ended-white-win"
   | "ended-black-win";
 export const [flow, setFlow] = createSignal<Flow>("turn-white");

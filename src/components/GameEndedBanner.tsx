@@ -6,7 +6,7 @@ export default function GameEndedBanner() {
     <Show when={flow() == "ended-black-win" || flow() == "ended-white-win"}>
       <div
         data-black={flow() === "ended-black-win"}
-        class="fixed top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2 z-50 bg-white data-[black=true]:bg-black px-8 py-4 border-4 drop-shadow border-black data-[black=true]:border-white text-black data-[black=true]:text-white
+        class="absolute top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2 z-50 bg-white data-[black=true]:bg-black px-8 py-4 border-4 drop-shadow border-black data-[black=true]:border-white text-black data-[black=true]:text-white
         flex flex-col items-center space-y-1"
       >
         <div class="text-4xl font-bold">

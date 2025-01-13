@@ -136,6 +136,19 @@ export default function Square(props: { i: number }) {
         )}
       </Show>
       <PieceImg piece={piece()} />
+
+      <Show when={piece()}>
+        {(p) => (
+          <div class="absolute bg-white w-2/3 bottom-1 h-3 border drop-shadow">
+            <div
+              class="bg-black h-full"
+              style={{
+                width: "0%",
+              }}
+            ></div>
+          </div>
+        )}
+      </Show>
     </div>
   );
 }

@@ -26,8 +26,11 @@ export default function Home() {
     capturedPieces().filter((p) => p.color == "white");
 
   return (
-    <div class="h-screen flex items-center justify-center">
-      <GameEndedBanner />
+    <div class="h-screen flex items-center  flex-col space-y-4">
+      <div class="text-center pt-8 space-y-1">
+        <div class="text-2xl font-bold">QChess</div>
+        <div class="text-sm">A game about quantum awesomeness and loyalty</div>
+      </div>
 
       <div class="relative">
         <div class="absolute top-0 left-0 bottom-0 -translate-x-full flex flex-col">
@@ -50,7 +53,8 @@ export default function Home() {
           black's turn
         </div>
 
-        <div class="bg-white  flex-1  grid grid-cols-8">
+        <div class="bg-white  flex-1  grid grid-cols-8 relative">
+          <GameEndedBanner />
           <For each={squares}>{(_, i) => <Square i={i()} />}</For>
         </div>
 
