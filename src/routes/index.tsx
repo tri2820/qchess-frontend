@@ -45,12 +45,12 @@ export default function Home() {
         <div class="text-sm">A game about superposition and loyalty</div>
       </div>
 
-      <div class="h-4">
+      {/* <div class="h-4">
         <div ref={latexEl}></div>
-      </div>
+      </div> */}
 
       <div class="relative">
-        <div class="absolute top-0 left-0 bottom-0 -translate-x-full flex flex-col">
+        {/* <div class="absolute top-0 left-0 bottom-0 -translate-x-full flex flex-col">
           <div class=" flex-1 flex max-w-72 flex-wrap">
             <For each={capturedWhites()}>
               {(p) => <PieceImg size="sm" piece={p} />}
@@ -61,14 +61,14 @@ export default function Home() {
               {(p) => <PieceImg size="sm" piece={p} />}
             </For>
           </div>
-        </div>
+        </div> */}
 
-        <div
+        {/* <div
           class="text-center bg-black text-white py-1 invisible data-[show=true]:visible"
           data-show={flow() == "turn-black"}
         >
           black's turn
-        </div>
+        </div> */}
 
         {/* <div class="bg-white  flex-1  grid grid-cols-8 relative">
           <GameEndedBanner />
@@ -82,9 +82,9 @@ export default function Home() {
           white's turn
         </div>
 
-        <Show when={pickAnother()}>
+        {/* <Show when={pickAnother()}>
           <div class="text-center py-2">Pick CNOT's target qubit</div>
-        </Show>
+        </Show> */}
       </div>
     </div>
   );
