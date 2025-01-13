@@ -1,21 +1,20 @@
 import katex from "katex";
-import { createEffect, For, onMount } from "solid-js";
+import "katex/dist/katex.min.css";
+import { createEffect, For, Show } from "solid-js";
 import GameEndedBanner from "~/components/GameEndedBanner";
 import PieceImg from "~/components/PieceImg";
 import Square from "~/components/Square";
-import "katex/dist/katex.min.css";
 import {
   capturedPieces,
   flow,
+  pickAnother,
   selectedCircuitLatex,
   selectedPiece,
   setDidAction,
 } from "~/signals";
-import Line from "~/components/Line";
-
-const squares = Array(64).fill(null);
 
 export default function Home() {
+  const squares = Array(64).fill(null);
   let latexEl!: HTMLDivElement;
 
   const capturedBlacks = () =>
@@ -83,6 +82,10 @@ export default function Home() {
         >
           white's turn
         </div>
+
+        <Show when={pickAnother()}>
+          <div class="text-center py-2">Pick CNOT's target qubit</div>
+        </Show>
       </div>
     </div>
   );
