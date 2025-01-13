@@ -70,10 +70,10 @@ export default function Home() {
           black's turn
         </div>
 
-        <div class="bg-white  flex-1  grid grid-cols-8 relative">
+        {/* <div class="bg-white  flex-1  grid grid-cols-8 relative">
           <GameEndedBanner />
           <For each={squares}>{(_, i) => <Square i={i()} />}</For>
-        </div>
+        </div> */}
 
         <div
           class="text-center bg-white text-black py-1 invisible data-[show=true]:visible"
