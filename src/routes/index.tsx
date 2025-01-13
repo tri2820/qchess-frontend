@@ -1,5 +1,5 @@
 import katex from "katex";
-import { createEffect, For, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 import GameEndedBanner from "~/components/GameEndedBanner";
 import PieceImg from "~/components/PieceImg";
 import Square from "~/components/Square";
@@ -14,7 +14,7 @@ import {
 
 export default function Home() {
   const squares = Array(64).fill(null);
-  let latexEl!: HTMLDivElement;
+  const [latexEl, setLatexEl] = createSignal<HTMLElement>();
 
   const capturedBlacks = () =>
     capturedPieces().filter((p) => p.color == "black");
@@ -28,10 +28,12 @@ export default function Home() {
 
   createEffect(() => {
     const p = selectedPiece();
+    const el = latexEl();
+    if (!el) return;
     const latex = selectedCircuitLatex();
     katex.render(
       latex ?? (p ? (p.color == "black" ? "|0\\rangle" : "|1\\rangle") : ""),
-      latexEl,
+      el,
       {
         throwOnError: false,
       }
@@ -45,9 +47,9 @@ export default function Home() {
         <div class="text-sm">A game about superposition and loyalty</div>
       </div>
 
-      {/* <div class="h-4">
-        <div ref={latexEl}></div>
-      </div> */}
+      <div class="h-4">
+        <div ref={setLatexEl}></div>
+      </div>
 
       <div class="relative">
         {/* <div class="absolute top-0 left-0 bottom-0 -translate-x-full flex flex-col">
