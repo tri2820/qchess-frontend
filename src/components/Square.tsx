@@ -2,11 +2,13 @@ import { batch, createSignal, onMount, Show, untrack } from "solid-js";
 import {
   capturedPieces,
   Color,
+  flow,
   Piece,
   pieces,
   selectedPiece,
   selectedSquare,
   setCapturedPieces,
+  setFlow,
   setPieces,
   setSelectedSquare,
   validMoves,
@@ -29,27 +31,28 @@ export default function Square(props: { i: number }) {
   return (
     <div
       onClick={() => {
+        const thisP = piece();
+        const selectedP = selectedPiece();
+
         if (isValidMove()) {
-          const p = untrack(selectedPiece);
-          const ps = untrack(pieces);
-          const cp = untrack(capturedPieces);
-          if (!p) return;
+          console.log("isValidMove");
+          if (!selectedP) return;
           const updatedP: Piece = {
-            ...p,
+            ...selectedP,
             position: {
               column,
               row,
             },
           };
 
-          const capturedPiece = ps.find(
+          const capturedPiece = pieces().find(
             (piece) =>
               piece.position.row === row && piece.position.column === column
           );
 
           batch(() => {
             if (capturedPiece) {
-              setCapturedPieces([...cp, capturedPiece]);
+              setCapturedPieces([...capturedPieces(), capturedPiece]);
               removePiece(capturedPiece.id);
             }
 
@@ -70,10 +73,26 @@ export default function Square(props: { i: number }) {
           }
 
           setSelectedSquare();
+          if (capturedPiece?.name == "king") {
+            setFlow(
+              capturedPiece.color == "black"
+                ? "ended-white-win"
+                : "ended-black-win"
+            );
+          } else {
+            setFlow(flow() == "turn-black" ? "turn-white" : "turn-black");
+          }
+
           return;
         }
 
-        console.log("set to props.", props.i);
+        if (thisP) {
+          console.log("p", thisP, flow());
+          if (thisP.color == "black" && flow() !== "turn-black") return;
+          if (thisP.color == "white" && flow() !== "turn-white") return;
+        }
+
+        console.log("set to", props.i, thisP, flow());
         setSelectedSquare(props.i);
       }}
       class=" bg-[#eeeed2] 

@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { Color, Name, Piece } from "~/signals";
+import { Color, flow, Name, Piece } from "~/signals";
 
 export default function PieceImg(props: {
   piece?: {
@@ -13,6 +13,7 @@ export default function PieceImg(props: {
     if (!p) return;
     return `/pieces/${p.name}-${p.color == "black" ? "b" : "w"}.svg`;
   };
+
   return (
     <div
       class="w-20 h-20 p-1 data-[sm=true]:w-14 data-[sm=true]:h-14"

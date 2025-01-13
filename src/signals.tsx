@@ -264,3 +264,9 @@ export const validMoves = () => {
 };
 
 export const [capturedPieces, setCapturedPieces] = createSignal<Piece[]>([]);
+export type Flow =
+  | "turn-white"
+  | "turn-black"
+  | "ended-white-win"
+  | "ended-black-win";
+export const [flow, setFlow] = createSignal<Flow>("turn-white");
