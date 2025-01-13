@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { Color, Name } from "~/signals";
+import { Color, Name } from "~/types";
 
 export default function PieceImg(props: {
   piece?: {

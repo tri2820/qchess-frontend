@@ -1,13 +1,11 @@
 import { batch, createEffect, createSignal, For, Show } from "solid-js";
 import {
   bubbles,
-  Color,
   didAction,
   entanglements,
   flow,
   mesh,
   pickAnother,
-  Piece,
   pieces,
   selectedPiece,
   selectedSquare,
@@ -25,7 +23,6 @@ import {
   findEntangledMesh,
   involvedQubits,
   measure,
-  MeasurementData,
   newCircuit,
   posToSquare,
   squareToPos,
@@ -36,6 +33,7 @@ import ContextMenu from "./ContextMenu";
 import Line from "./Line";
 import PieceImg from "./PieceImg";
 import PromotionPicker from "./PromotionPicker";
+import { Color, MeasurementData, Piece } from "~/types";
 
 export default function Square(props: { i: number }) {
   const [showContextMenu, setShowContextMenu] = createSignal<{

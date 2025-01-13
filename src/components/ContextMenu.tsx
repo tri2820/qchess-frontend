@@ -1,5 +1,6 @@
 import { Accessor, onCleanup, onMount, Setter, Show } from "solid-js";
-import { didAction, Gate } from "~/signals";
+import { didAction } from "~/signals";
+import { Gate } from "~/types";
 
 export default function ContextMenu(props: {
   showContextMenu: Accessor<any>;

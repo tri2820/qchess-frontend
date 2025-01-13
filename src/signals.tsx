@@ -6,50 +6,7 @@ import {
   newCircuit,
   squareToPos,
 } from "./utils";
-export type Gate = "h" | "cx" | "x" | "y" | "z" | "measure";
-export type Color = "white" | "black";
-export type Name = "rook" | "knight" | "queen" | "bishop" | "pawn" | "king";
-export type ValidMove = {
-  row: number;
-  column: number;
-};
-export type State = {
-  alpha: [number, number];
-  beta: [number, number];
-};
-
-export type PieceId = string;
-export type Piece = {
-  id: PieceId;
-  color: Color;
-  name: Name;
-  circuit: Circuit;
-  position: {
-    row: number;
-    column: number;
-  };
-  captured?: boolean;
-
-  // For UI only
-  prob_black: number;
-};
-
-export type Action = {
-  created_at: string;
-  gate: Gate;
-  args: PieceId[];
-};
-export type Entanglement = {
-  idA: PieceId;
-  idB: PieceId;
-};
-export type Circuit = {
-  id: string;
-  actions: Action[];
-  latex?: string;
-  entanglements: Entanglement[];
-};
-
+import { Flow, Piece } from "./types";
 // At first, each piece has its own circuit
 export const [pieces, setPieces] = createSignal<Piece[]>([
   {
@@ -359,13 +316,6 @@ export const validMoves = () => {
 };
 
 export const capturedPieces = () => pieces().filter((p) => p.captured);
-export type Flow =
-  | "turn-white"
-  | "turn-black"
-  // white-promotion
-  // black-promotion
-  | "ended-white-win"
-  | "ended-black-win";
 
 export const [didAction, setDidAction] = createSignal(false);
 export const [flow, setFlow] = createSignal<Flow>("turn-white");

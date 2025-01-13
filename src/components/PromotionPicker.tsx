@@ -1,5 +1,4 @@
-import { Name, Piece } from "~/signals";
-import { updatePiece } from "~/utils";
+import { Name, Piece } from "~/types";
 import PieceImg from "./PieceImg";
 
 type PickerProps = {

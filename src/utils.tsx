@@ -1,12 +1,13 @@
+import { pieces, setPieces } from "./signals";
 import {
-  ValidMove,
-  Piece,
-  setPieces,
-  Color,
-  State,
   Circuit,
-  pieces,
-} from "./signals";
+  Color,
+  MeasurementData,
+  Piece,
+  Qubit,
+  State,
+  ValidMove,
+} from "./types";
 
 const backend_url = import.meta.env.DEV
   ? import.meta.env.VITE_BACKEND_URL_DEV
@@ -397,21 +398,6 @@ export const prob0 = (s: State): number => {
   const [realAlpha, imagAlpha] = s.alpha;
   // Calculate the squared magnitude of alpha (|alpha|^2)
   return realAlpha * realAlpha + imagAlpha * imagAlpha;
-};
-
-export type MeasurementData = {
-  entanglement: boolean;
-  latex: string;
-  measurement: string;
-  probabilities: {
-    [state: string]: number;
-  };
-  qubits: { id: string }[];
-};
-
-export type Qubit = {
-  id: string;
-  classicalState: 0 | 1;
 };
 
 export function involvedQubits(circuit: Circuit): Qubit[] {
