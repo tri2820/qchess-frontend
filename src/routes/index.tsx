@@ -13,18 +13,18 @@ import {
 } from "~/signals";
 
 export default function Home() {
-  const squares = Array(64).fill(null);
-  const [latexEl, setLatexEl] = createSignal<HTMLElement>();
+  // const squares = Array(64).fill(null);
+  // const [latexEl, setLatexEl] = createSignal<HTMLElement>();
 
-  const capturedBlacks = () =>
-    capturedPieces().filter((p) => p.color == "black");
-  const capturedWhites = () =>
-    capturedPieces().filter((p) => p.color == "white");
+  // const capturedBlacks = () =>
+  //   capturedPieces().filter((p) => p.color == "black");
+  // const capturedWhites = () =>
+  //   capturedPieces().filter((p) => p.color == "white");
 
-  createEffect(() => {
-    const _ = flow();
-    setDidAction(false);
-  });
+  // createEffect(() => {
+  //   const _ = flow();
+  //   setDidAction(false);
+  // });
 
   // createEffect(() => {
   //   const p = selectedPiece();
@@ -47,9 +47,9 @@ export default function Home() {
         <div class="text-sm">A game about superposition and loyalty</div>
       </div>
 
-      <div class="h-4">
+      {/* <div class="h-4">
         <div ref={setLatexEl}></div>
-      </div>
+      </div> */}
 
       <div class="relative">
         {/* <div class="absolute top-0 left-0 bottom-0 -translate-x-full flex flex-col">
