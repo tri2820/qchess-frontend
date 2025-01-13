@@ -26,19 +26,19 @@ export default function Home() {
     setDidAction(false);
   });
 
-  createEffect(() => {
-    const p = selectedPiece();
-    const el = latexEl();
-    if (!el) return;
-    const latex = selectedCircuitLatex();
-    katex.render(
-      latex ?? (p ? (p.color == "black" ? "|0\\rangle" : "|1\\rangle") : ""),
-      el,
-      {
-        throwOnError: false,
-      }
-    );
-  });
+  // createEffect(() => {
+  //   const p = selectedPiece();
+  //   const el = latexEl();
+  //   if (!el) return;
+  //   const latex = selectedCircuitLatex();
+  //   katex.render(
+  //     latex ?? (p ? (p.color == "black" ? "|0\\rangle" : "|1\\rangle") : ""),
+  //     el,
+  //     {
+  //       throwOnError: false,
+  //     }
+  //   );
+  // });
 
   return (
     <div class="h-screen flex items-center  flex-col space-y-4">
