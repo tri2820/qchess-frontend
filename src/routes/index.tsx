@@ -19,7 +19,8 @@ export default function Home() {
 
   return (
     <div class="h-screen flex items-center justify-center">
-      <div class="bg-white border  w-[500px] h-[500px] grid grid-cols-8">
+      {/* <div>{JSON.stringify(highlightValidMoves())}</div> */}
+      <div class="bg-white border   grid grid-cols-8">
         <For each={squares}>{(_, i) => <Square i={i()} />}</For>
       </div>
     </div>
