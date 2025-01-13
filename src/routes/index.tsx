@@ -77,12 +77,12 @@ export default function Home() {
           <For each={squares}>{(_, i) => <Square i={i()} />}</For>
         </div> */}
 
-        {/* <div
+        <div
           class="text-center bg-white text-black py-1 invisible data-[show=true]:visible"
-          data-show={flow() == "turn-white"}
+          // data-show={flow() == "turn-white"}
         >
           white's turn
-        </div> */}
+        </div>
 
         {/* <Show when={pickAnother()}>
           <div class="text-center py-2">Pick CNOT's target qubit</div>
