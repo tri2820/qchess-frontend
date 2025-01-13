@@ -1,16 +1,4 @@
-import katex from "katex";
-import { createEffect, createSignal, For, Show } from "solid-js";
-import GameEndedBanner from "~/components/GameEndedBanner";
-import PieceImg from "~/components/PieceImg";
-import Square from "~/components/Square";
-import {
-  capturedPieces,
-  flow,
-  pickAnother,
-  selectedCircuitLatex,
-  selectedPiece,
-  setDidAction,
-} from "~/signals";
+import { flow } from "~/signals";
 
 export default function Home() {
   // const squares = Array(64).fill(null);
@@ -79,7 +67,7 @@ export default function Home() {
 
         <div
           class="text-center bg-white text-black py-1 invisible data-[show=true]:visible"
-          // data-show={flow() == "turn-white"}
+          data-show={flow() == "turn-white"}
         >
           white's turn
         </div>
